@@ -1,0 +1,9 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" tools:context=".WordCounterActivity">
+    <item android:id="@+id/sort_occurrence" android:title="@string/sort_occurrence"
+        android:orderInCategory="100" android:showAsAction="never" />
+    <item android:id="@+id/sort_alphabet" android:title="@string/sort_alphabet"
+        android:orderInCategory="100" android:showAsAction="never" />
+    <item android:id="@+id/sort_count" android:title="@string/sort_count"
+        android:orderInCategory="100" android:showAsAction="never" />
+</menu>

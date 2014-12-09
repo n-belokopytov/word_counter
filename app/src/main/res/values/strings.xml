@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">WordCounter</string>
+    <string name="version">1.0</string>
+    <string name="network_unreachable">Network error - please make sure you\'re connected!</string>
+    <string name="actionbar_title">Word Counter</string>
+    <string name="sort_occurrence">By occurrence</string>
+    <string name="sort_alphabet">By alphabet</string>
+    <string name="sort_count">By count</string>
+    <string name="msg_working">Working...</string>
+</resources>
