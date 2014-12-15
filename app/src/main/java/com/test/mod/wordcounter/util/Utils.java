@@ -1,4 +1,4 @@
-package com.test.mod.wordcounter.ui.util;
+package com.test.mod.wordcounter.util;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

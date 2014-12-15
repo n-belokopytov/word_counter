@@ -1,4 +1,4 @@
-package com.test.mod.wordcounter.data;
+package com.test.mod.wordcounter.interfaces;
 
 /**
  * Created by nbelokopytov on 09.12.2014.

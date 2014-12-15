@@ -1,13 +1,11 @@
 package com.test.mod.wordcounter.data.models;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by nbelokopytov on 05.12.2014.
  */
 public class Word {
-    private static AtomicLong sPositionCounter = new AtomicLong(0);
     private static final String TAG = "NB:Word";
 
     private final long mId;
@@ -16,7 +14,7 @@ public class Word {
 
 
     public static Word createNewWord(String word) {
-        return new Word(sPositionCounter.incrementAndGet(), word, 1);
+        return new Word(0, word, 1);
     }
 
     public static Word createWordFromData(long position, String word, long count) {

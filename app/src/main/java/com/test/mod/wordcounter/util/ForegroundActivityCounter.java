@@ -1,4 +1,4 @@
-package com.test.mod.wordcounter.ui.util;
+package com.test.mod.wordcounter.util;
 
 /**
  * Created by nbelokopytov on 30/10/14.

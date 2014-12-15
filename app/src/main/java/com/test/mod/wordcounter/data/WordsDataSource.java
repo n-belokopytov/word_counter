@@ -3,24 +3,20 @@ package com.test.mod.wordcounter.data;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.test.mod.wordcounter.data.db.WordsDBHelper;
 import com.test.mod.wordcounter.data.models.Word;
+import com.test.mod.wordcounter.interfaces.IWordStorage;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by nbelokopytov on 05.12.2014.
  */
-public class WordsDataSource {
-
-    private Object mGetAllLock = new Object();
+public class WordsDataSource implements IWordStorage {
 
     private static final String TAG = "NB:WordsDataSource";
     private String mOrder = null;
@@ -33,74 +29,78 @@ public class WordsDataSource {
     public WordsDataSource(Context context) {
         mOrder = WordsDBHelper.COLUMN_ID;
         mDbHelper = new WordsDBHelper(context);
-    }
-
-    public void open() throws SQLException {
         mDatabase = mDbHelper.getWritableDatabase();
     }
 
-    public void close() {
+    @Override
+    public void cleanup() {
         mDatabase = null;
         mDbHelper.close();
     }
 
-    public boolean isOpen() {
-        return mDatabase != null;
-    }
-
     //Batch adding, wrapped in transaction for performance
-    public void addBatch(LinkedHashMap<String, AtomicLong> words) {
-        synchronized (mGetAllLock) {
-            ContentValues values = new ContentValues();
-            mDatabase.beginTransaction();
-            Cursor cursor = null;
-            for (LinkedHashMap.Entry<String, AtomicLong> entry : words.entrySet()) {
-                // this is my version of upsert
-                values.put(WordsDBHelper.COLUMN_WORD, entry.getKey());
-                cursor = mDatabase.query(WordsDBHelper.TABLE_WORDS,
-                        allColumns, WordsDBHelper.COLUMN_WORD + "=?", new String[]{entry.getKey()}, null,
-                        null, null, null);
-                try {
-                    if (cursor.moveToFirst()) {
-                        values.put(WordsDBHelper.COLUMN_COUNT, entry.getValue().get()
-                                + cursor.getLong(1));
-                        mDatabase.update(WordsDBHelper.TABLE_WORDS, values,
-                                WordsDBHelper.COLUMN_WORD + "=?", new String[]{entry.getKey()});
-                    } else {
-                        values.put(WordsDBHelper.COLUMN_COUNT, entry.getValue().get());
-                        mDatabase.insert(WordsDBHelper.TABLE_WORDS, null, values);
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, e.getLocalizedMessage(), e);
-                } finally {
-                    cursor.close();
-                }
-            }
-            mDatabase.setTransactionSuccessful();
-            mDatabase.endTransaction();
+    @Override
+    public void addBatch(List<Word> words) {
+        if(mDatabase == null){
+            mDatabase = mDbHelper.getWritableDatabase();
         }
+
+        ContentValues values = new ContentValues();
+        Cursor cursor = null;
+
+        mDatabase.beginTransaction();
+        for (Word entry : words) {
+            // this is my version of upsert
+            values.put(WordsDBHelper.COLUMN_WORD, entry.getWord());
+            cursor = mDatabase.query(WordsDBHelper.TABLE_WORDS,
+                    allColumns, WordsDBHelper.COLUMN_WORD + "=?", new String[]{entry.getWord()}, null,
+                    null, null, null);
+            try {
+                if (cursor.moveToFirst()) {
+                    values.put(WordsDBHelper.COLUMN_COUNT, entry.getCount()
+                            + cursor.getLong(1));
+                    mDatabase.update(WordsDBHelper.TABLE_WORDS, values,
+                            WordsDBHelper.COLUMN_WORD + "=?", new String[]{entry.getWord()});
+                } else {
+                    values.put(WordsDBHelper.COLUMN_COUNT, entry.getCount());
+                    mDatabase.insert(WordsDBHelper.TABLE_WORDS, null, values);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, e.getLocalizedMessage(), e);
+            } finally {
+                cursor.close();
+            }
+        }
+        mDatabase.setTransactionSuccessful();
+        mDatabase.endTransaction();
     }
 
+    @Override
     public void sortByOccurrence() {
         mOrder = WordsDBHelper.COLUMN_ID;
     }
 
+    @Override
     public void sortByAlphabet() {
         mOrder = WordsDBHelper.COLUMN_WORD;
     }
 
+    @Override
     public void sortByCount() {
         mOrder = WordsDBHelper.COLUMN_COUNT;
     }
 
-    public List<Word> getAllWords() {
-        List<Word> words = new ArrayList<Word>();
+    @Override
+    public List<Word> getAll() {
+        if(mDatabase == null){
+            mDatabase = mDbHelper.getWritableDatabase();
+        }
+        List<Word> words = new ArrayList<>();
         Cursor cursor = null;
+
         try {
-            synchronized (mGetAllLock) {
-                cursor = mDatabase.query(WordsDBHelper.TABLE_WORDS,
-                        allColumns, null, null, null, null, mOrder);
-            }
+            cursor = mDatabase.query(WordsDBHelper.TABLE_WORDS,
+                    allColumns, null, null, null, null, mOrder);
         }
         catch (Exception e){
             Log.e(TAG, e.getLocalizedMessage(), e);
@@ -122,7 +122,11 @@ public class WordsDataSource {
         return Word.createWordFromData(cursor.getLong(0), cursor.getString(1), cursor.getLong(2));
     }
 
-    public void reset(){
+    @Override
+    public void reset() {
+        if(mDatabase == null){
+            mDatabase = mDbHelper.getWritableDatabase();
+        }
         mDbHelper.reset(mDatabase);
     }
 }

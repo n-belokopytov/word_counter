@@ -6,11 +6,9 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import com.test.mod.wordcounter.R;
-import com.test.mod.wordcounter.ui.util.ForegroundActivityCounter;
-import com.test.mod.wordcounter.ui.util.Utils;
+import com.test.mod.wordcounter.util.ForegroundActivityCounter;
 
 
 /**
