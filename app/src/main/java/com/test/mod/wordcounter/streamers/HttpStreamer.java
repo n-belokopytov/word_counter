@@ -12,7 +12,6 @@ import java.net.URL;
  */
 public class HttpStreamer implements IStreamer {
 
-
     private static final String TAG = "NB:HttpStreamer";
     InputStream mStream = null;
 

@@ -53,6 +53,6 @@ public class ScannerWorder implements IWorder {
 
     @Override
     public boolean hasFinished() {
-        return mScanner.hasNext();
+        return !mScanner.hasNext();
     }
 }

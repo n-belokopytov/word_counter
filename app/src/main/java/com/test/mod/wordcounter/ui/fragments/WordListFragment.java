@@ -39,7 +39,7 @@ public class WordListFragment extends BaseFragment implements LoadWordsTask.OnRe
     private static final String PREFS = "WORDLIST";
     private static final String PREFS_KEY_RECENT = "RECENT";
 
-    private IStreamer mStreamer;
+    private IStreamer mStreamer = null;
     private ListView mList = null;
     private ArrayAdapter mAdapter = null;
     private IWordStorage mWordsDataSource = null;

@@ -14,7 +14,7 @@ public class Word {
 
 
     public static Word createNewWord(String word) {
-        return new Word(0, word, 1);
+        return new Word(0, word, 0);
     }
 
     public static Word createWordFromData(long position, String word, long count) {

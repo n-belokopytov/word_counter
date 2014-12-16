@@ -7,4 +7,9 @@
     <string name="sort_alphabet">By alphabet</string>
     <string name="sort_count">By count</string>
     <string name="msg_working">Working...</string>
+    <string name="default_sdcard">Default SD card file</string>
+    <string name="default_sdcard_path">input.txt</string>
+    <string name="default_web">Default file from the internet</string>
+    <string name="proceed">Proceed</string>
+    <string name="default_web_path">http://text</string>
 </resources>

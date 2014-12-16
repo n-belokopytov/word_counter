@@ -28,7 +28,7 @@ public abstract class BaseActivity extends Activity {
     public abstract int getActionBarTitle();
 
     public int getContentLayout(){
-        return R.layout.frag_activity;
+        return R.layout.single_frag_activity;
     }
 
     @Override
