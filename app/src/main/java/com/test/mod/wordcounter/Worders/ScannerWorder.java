@@ -39,7 +39,7 @@ public class ScannerWorder implements IWorder {
         mWordsBatch.clear();
         long startTime = System.nanoTime();
 
-        while (mScanner.hasNext() || (System.nanoTime() - startTime) > mBatchTimer) {
+        while (mScanner.hasNext() && mIndex.size() < 60 && (System.nanoTime() - startTime) < mBatchTimer) {
             s = mScanner.next();
             if (!mIndex.containsKey(s)) {
                 mIndex.put(s, new Integer(mWordsBatch.size()));

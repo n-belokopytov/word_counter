@@ -6,8 +6,10 @@ package com.test.mod.wordcounter.ui.fragments;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,12 +41,13 @@ public class WordListFragment extends BaseFragment implements LoadWordsTask.OnRe
     private static final String PREFS = "WORDLIST";
     private static final String PREFS_KEY_RECENT = "RECENT";
 
-    private IStreamer mStreamer = null;
+    private IStreamer mStreamer;
     private ListView mList = null;
     private ArrayAdapter mAdapter = null;
     private IWordStorage mWordsDataSource = null;
     private static final String PLACEHOLDER_FILENAME = "input.txt";
     private String mInputName = null;
+    private AsyncTask mLoadTask;
 
 
     public static BaseFragment getInstance(String filename) {
@@ -69,46 +72,47 @@ public class WordListFragment extends BaseFragment implements LoadWordsTask.OnRe
         View rootView = inflater.inflate(R.layout.word_counter_frag, container, false);
         mList = (ListView) rootView.findViewById(R.id.list);
 
-        SharedPreferences preferences = WordCounterApp.getContext().
-                                                        getSharedPreferences(PREFS,
-                                                                Context.MODE_PRIVATE);
-        String recentFile = preferences.getString(PREFS_KEY_RECENT, "null");
+//        SharedPreferences preferences = WordCounterApp.getContext().
+//                                                        getSharedPreferences(PREFS,
+//                                                                Context.MODE_PRIVATE);
+//        String recentFile = preferences.getString(PREFS_KEY_RECENT, "null");
 
         mWordsDataSource = new WordsDataSource(getActivity());
 
         setHasOptionsMenu(true);
 
-        if(recentFile.compareTo(mInputName) == 0) {
-            createAdapter();
-        }
-        else {
-            LoadWordsTask task = new LoadWordsTask(mWordsDataSource, mStreamer, new ScannerWorder(),
-                                                                        mInputName, this);
-            task.execute();
-            //Here we can put this filename to preferences and then open it up
-            //But for now I won't be doing it because I don't see a need in that mechanism
-            //As soon as the file selection is introduced, this should be used and also
-            //Preferences should hold the most recent md5 sum instead of a filename
-        }
-
-
         return rootView;
     }
 
-    public ListAdapter createAdapter() {
-        List<Word> values = mWordsDataSource.getAll();
-        mAdapter = new ArrayAdapter<Word>(getActivity(),
-                R.layout.word_list_item, values);
-        return mAdapter;
+    public void createAdapter() {
+        WordCounterApp.scheduleTask(new Runnable() {
+            @Override
+            public void run() {
+                List<Word> values = mWordsDataSource.getAll();
+                mAdapter = new ArrayAdapter<Word>(getActivity(),
+                        R.layout.word_list_item, values);
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mList.setAdapter(mAdapter);
+                        mAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        });
     }
 
     @Override
     public void onResume() {
+        mLoadTask = new LoadWordsTask(mWordsDataSource, mStreamer, new ScannerWorder(),
+                mInputName, this);
+        mLoadTask.execute();
         super.onResume();
     }
 
     @Override
     public void onPause() {
+        mLoadTask.cancel(true);
         mWordsDataSource.cleanup();
         super.onPause();
     }
@@ -142,18 +146,21 @@ public class WordListFragment extends BaseFragment implements LoadWordsTask.OnRe
 
     @Override
     public void onRefreshUI() {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                refresh();
-            }
-        });
+        try {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    refresh();
+                }
+            });
+        }
+        catch (Exception e) {
+            Log.e(TAG, e.getLocalizedMessage(), e);
+        }
     }
 
     void refresh() {
         createAdapter();
-        mList.setAdapter(mAdapter);
-        mAdapter.notifyDataSetChanged();
     }
 
 

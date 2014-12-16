@@ -3,6 +3,7 @@ package com.test.mod.wordcounter.data;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
@@ -17,6 +18,8 @@ import java.util.List;
  * Created by nbelokopytov on 05.12.2014.
  */
 public class WordsDataSource implements IWordStorage {
+
+    private Object mGetAllLock = new Object();
 
     private static final String TAG = "NB:WordsDataSource";
     private String mOrder = null;
@@ -57,11 +60,12 @@ public class WordsDataSource implements IWordStorage {
                     null, null, null);
             try {
                 if (cursor.moveToFirst()) {
-                    values.put(WordsDBHelper.COLUMN_COUNT, entry.getCount()
-                            + cursor.getLong(1));
+                    long count = cursor.getLong(2) + entry.getCount();
+                    values.put(WordsDBHelper.COLUMN_COUNT, count);
                     mDatabase.update(WordsDBHelper.TABLE_WORDS, values,
                             WordsDBHelper.COLUMN_WORD + "=?", new String[]{entry.getWord()});
-                } else {
+                }
+                else {
                     values.put(WordsDBHelper.COLUMN_COUNT, entry.getCount());
                     mDatabase.insert(WordsDBHelper.TABLE_WORDS, null, values);
                 }

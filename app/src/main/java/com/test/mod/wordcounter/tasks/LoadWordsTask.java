@@ -53,7 +53,7 @@ public class LoadWordsTask extends AsyncTask {
             stream = mStreamLoader.open(mInputPath);
             mWorder.init(stream, DEFAULT_BATCH_TIME);
 
-            while(!mWorder.hasFinished()) {
+            while(!mWorder.hasFinished() && !isCancelled()) {
                 final List<Word> finalBatch = new ArrayList<>(mWorder.getNextBatch());
 
                 WordCounterApp.scheduleTask(new Runnable() {
