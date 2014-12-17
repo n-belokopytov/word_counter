@@ -1,8 +1,14 @@
 apply plugin: 'com.android.application'
+apply plugin: "jacoco"
 
 dependencies {
     compile 'com.android.support:appcompat-v7:20.+'
     compile 'com.google.android.gms:play-services:6.1.+'
+}
+
+jacoco {
+    toolVersion = "0.7.1.201405082137"
+    reportsDir = file("$buildDir/customJacocoReportDir")
 }
 
 android {
@@ -17,12 +23,19 @@ android {
         versionName "1.0"
     }
     buildTypes {
-        release {
+        debug {
             minifyEnabled false
+            testCoverageEnabled true
+        }
+        release {
+            minifyEnabled true
+            testCoverageEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 }
+
+
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
