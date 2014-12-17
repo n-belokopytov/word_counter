@@ -8,7 +8,6 @@ import java.util.List;
  * Created by nbelokopytov on 15.12.2014.
  */
 public interface IWorder {
-    void init(InputStream input, float batchTimerSeconds);
     List<Word> getNextBatch();
     boolean hasFinished();
 }

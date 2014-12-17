@@ -4,8 +4,6 @@ package com.test.mod.wordcounter.ui.fragments;
  * Created by nbelokopytov on 04.12.2014.
  */
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -15,7 +13,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.test.mod.wordcounter.R;
@@ -24,8 +21,8 @@ import com.test.mod.wordcounter.data.WordsDataSource;
 import com.test.mod.wordcounter.data.models.Word;
 import com.test.mod.wordcounter.interfaces.IStreamer;
 import com.test.mod.wordcounter.interfaces.IWordStorage;
+import com.test.mod.wordcounter.streamers.FileSystemStreamer;
 import com.test.mod.wordcounter.streamers.HttpStreamer;
-import com.test.mod.wordcounter.streamers.SdcardStreamer;
 import com.test.mod.wordcounter.tasks.LoadWordsTask;
 import com.test.mod.wordcounter.ui.BaseFragment;
 import com.test.mod.wordcounter.worders.ScannerWorder;
@@ -58,7 +55,7 @@ public class WordListFragment extends BaseFragment implements LoadWordsTask.OnRe
             frag.mStreamer = new HttpStreamer();
         }
         else {
-            frag.mStreamer = new SdcardStreamer();
+            frag.mStreamer = new FileSystemStreamer();
             frag.mInputName = Environment.getExternalStorageDirectory().getPath()
                                                                     + "/" + frag.mInputName;
         }
@@ -104,8 +101,7 @@ public class WordListFragment extends BaseFragment implements LoadWordsTask.OnRe
 
     @Override
     public void onResume() {
-        mLoadTask = new LoadWordsTask(mWordsDataSource, mStreamer, new ScannerWorder(),
-                mInputName, this);
+        mLoadTask = new LoadWordsTask(mWordsDataSource, mStreamer, mInputName, this);
         mLoadTask.execute();
         super.onResume();
     }

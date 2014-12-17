@@ -55,10 +55,11 @@ public class WordsDataSource implements IWordStorage {
         for (Word entry : words) {
             // this is my version of upsert
             values.put(WordsDBHelper.COLUMN_WORD, entry.getWord());
-            cursor = mDatabase.query(WordsDBHelper.TABLE_WORDS,
-                    allColumns, WordsDBHelper.COLUMN_WORD + "=?", new String[]{entry.getWord()}, null,
-                    null, null, null);
             try {
+                cursor = mDatabase.query(WordsDBHelper.TABLE_WORDS,
+                        allColumns, WordsDBHelper.COLUMN_WORD + "=?", new String[]{entry.getWord()}, null,
+                        null, null, null);
+
                 if (cursor.moveToFirst()) {
                     long count = cursor.getLong(2) + entry.getCount();
                     values.put(WordsDBHelper.COLUMN_COUNT, count);
@@ -72,7 +73,9 @@ public class WordsDataSource implements IWordStorage {
             } catch (Exception e) {
                 Log.e(TAG, e.getLocalizedMessage(), e);
             } finally {
-                cursor.close();
+                if(cursor != null && !cursor.isClosed()) {
+                    cursor.close();
+                }
             }
         }
         mDatabase.setTransactionSuccessful();
@@ -104,21 +107,24 @@ public class WordsDataSource implements IWordStorage {
 
         try {
             cursor = mDatabase.query(WordsDBHelper.TABLE_WORDS,
-                    allColumns, null, null, null, null, mOrder);
+                    allColumns, null, null, null, null, mOrder, "100");
+
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                Word word = cursorToWord(cursor);
+                words.add(word);
+                cursor.moveToNext();
+            }
         }
         catch (Exception e){
             Log.e(TAG, e.getLocalizedMessage(), e);
             return words;
         }
-
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            Word word = cursorToWord(cursor);
-            words.add(word);
-            cursor.moveToNext();
+        finally {
+            if(cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
         }
-        // make sure to close the cursor
-        cursor.close();
         return words;
     }
 

@@ -27,7 +27,7 @@ public class WordCounterApp extends Application {
     private static Context sContext = null;;
 
     //A static thread pool for possible bg tasks
-    private static ExecutorService mThreadPool = Executors.newCachedThreadPool(new ThreadFactory() {
+    private static ExecutorService mThreadPool = Executors.newFixedThreadPool(3, new ThreadFactory() {
         int mCounter = 1;
 
         @Override

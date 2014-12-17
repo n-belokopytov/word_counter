@@ -8,34 +8,32 @@ import com.test.mod.wordcounter.data.models.Word;
 import com.test.mod.wordcounter.interfaces.IStreamer;
 import com.test.mod.wordcounter.interfaces.IWordStorage;
 import com.test.mod.wordcounter.interfaces.IWorder;
+import com.test.mod.wordcounter.worders.ScannerWorder;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by nbelokopytov on 15.12.2014.
  */
 public class LoadWordsTask extends AsyncTask {
     private static final String TAG = "NB:LoadWordsTask";
-    private static final float DEFAULT_BATCH_TIME = 2f;
+    private static final int DEFAULT_BATCH_TIME_NANO = (int) (2 * Math.pow(10, 9));
+    private static final int DEFAULT_BATCH_SIZE = 60;
 
-    private final IWorder mWorder;
-    private final IStreamer mStreamLoader;
+
     private final String mInputPath;
-    private final OnRefreshUIListener mUIListener;
-    //READER class implementation
-    //get characters one by one
 
-    IWordStorage mWordsDataSource;
+    protected final OnRefreshUIListener mUIListener;
+    protected final IStreamer mStreamLoader;
+    protected IWorder mWorder;
+    protected IWordStorage mWordsDataSource;
 
-    public LoadWordsTask(IWordStorage dataSource, IStreamer loader, IWorder worder,
-                                                    String path, OnRefreshUIListener uiListener){
+    public LoadWordsTask(IWordStorage dataSource, IStreamer loader, String path,
+                         OnRefreshUIListener uiListener){
         mWordsDataSource = dataSource;
         mStreamLoader = loader;
-        mWorder = worder;
         mInputPath = path;
         mUIListener = uiListener;
     }
@@ -51,7 +49,7 @@ public class LoadWordsTask extends AsyncTask {
         InputStream stream = null;
         try {
             stream = mStreamLoader.open(mInputPath);
-            mWorder.init(stream, DEFAULT_BATCH_TIME);
+            mWorder = new ScannerWorder(stream, DEFAULT_BATCH_TIME_NANO, DEFAULT_BATCH_SIZE);
 
             while(!mWorder.hasFinished() && !isCancelled()) {
                 final List<Word> finalBatch = new ArrayList<>(mWorder.getNextBatch());

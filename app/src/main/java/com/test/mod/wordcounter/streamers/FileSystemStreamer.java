@@ -11,7 +11,7 @@ import java.io.InputStream;
 /**
  * Created by nbelokopytov on 15.12.2014.
  */
-public class SdcardStreamer implements IStreamer {
+public class FileSystemStreamer implements IStreamer {
 
     private static final String TAG = "NB:SdcardStreamer";
     private InputStream mStream = null;

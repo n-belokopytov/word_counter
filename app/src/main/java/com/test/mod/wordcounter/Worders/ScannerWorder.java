@@ -18,19 +18,21 @@ public class ScannerWorder implements IWorder {
 
     private static final String TAG = "NB:ScannerWorder";
 
-    private long mBatchTimer = 2000000000;
+    private long mBatchDurationNano = 0;
+    private int mBatchSize = 0;
 
     private Scanner mScanner = null;
     private LinkedHashMap<String, Integer> mIndex = new LinkedHashMap<>();
     private List<Word> mWordsBatch = new ArrayList<>();
 
-    public void init(InputStream path, float batchTimerSeconds) {
+    public ScannerWorder(InputStream path, int batchDurationNano, int batchSize) {
         try {
             mScanner = new Scanner(path);
         } catch (Exception e) {
             Log.e(TAG, e.getLocalizedMessage(), e);
         }
-        mBatchTimer = (long)(batchTimerSeconds * 1000000000);
+        mBatchDurationNano = (long)batchDurationNano;
+        mBatchSize = batchSize;
     }
 
     public List<Word> getNextBatch() {
@@ -39,7 +41,7 @@ public class ScannerWorder implements IWorder {
         mWordsBatch.clear();
         long startTime = System.nanoTime();
 
-        while (mScanner.hasNext() && mIndex.size() < 60 && (System.nanoTime() - startTime) < mBatchTimer) {
+        while (mScanner.hasNext() && mIndex.size() < mBatchSize && (System.nanoTime() - startTime) < mBatchDurationNano) {
             s = mScanner.next();
             if (!mIndex.containsKey(s)) {
                 mIndex.put(s, new Integer(mWordsBatch.size()));
