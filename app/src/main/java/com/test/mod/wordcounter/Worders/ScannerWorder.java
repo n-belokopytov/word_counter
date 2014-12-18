@@ -25,9 +25,9 @@ public class ScannerWorder implements IWorder {
     private LinkedHashMap<String, Integer> mIndex = new LinkedHashMap<>();
     private List<Word> mWordsBatch = new ArrayList<>();
 
-    public ScannerWorder(InputStream path, int batchDurationNano, int batchSize) {
+    public ScannerWorder(InputStream stream, int batchDurationNano, int batchSize) {
         try {
-            mScanner = new Scanner(path);
+            mScanner = new Scanner(stream);
         } catch (Exception e) {
             Log.e(TAG, e.getLocalizedMessage(), e);
         }
@@ -40,7 +40,9 @@ public class ScannerWorder implements IWorder {
         mIndex.clear();
         mWordsBatch.clear();
         long startTime = System.nanoTime();
-
+        if(mScanner == null) {
+            return null;
+        }
         while (mScanner.hasNext() && mIndex.size() < mBatchSize && (System.nanoTime() - startTime) < mBatchDurationNano) {
             s = mScanner.next();
             if (!mIndex.containsKey(s)) {
@@ -55,6 +57,9 @@ public class ScannerWorder implements IWorder {
 
     @Override
     public boolean hasFinished() {
+        if(mScanner == null) {
+            return true;
+        }
         return !mScanner.hasNext();
     }
 }

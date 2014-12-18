@@ -32,7 +32,7 @@ public class WordsDataSourceTest extends InstrumentationTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        mContext = new RenamingDelegatingContext(getInstrumentation().getTargetContext(), "Test");
+        mContext = new RenamingDelegatingContext(getInstrumentation().getTargetContext(), PREFIX);
         mWDS = new WordsDataSource(mContext);
 
         mTestBatch = new ArrayList<>(DEFAULT_TEST_BATCH_SIZE);
